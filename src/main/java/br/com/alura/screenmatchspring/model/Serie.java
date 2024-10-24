@@ -1,17 +1,31 @@
 package br.com.alura.screenmatchspring.model;
 
-import br.com.alura.screenmatchspring.service.ConsultaChatGPT;
+import br.com.alura.screenmatchspring.service.traducao.ConsultaMyMemory;
+import jakarta.persistence.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.OptionalDouble;
 
+@Entity //anotação para indicar que essa classe é uma entidade para o DB e todos atributos serão colunas
+@Table(name = "series") //anotação para que o nome da tabela não seja o nome da classe por padrão e sim "series"
 public class Serie {
-     private String titulo; 
+     @Id
+     @GeneratedValue(strategy = GenerationType.IDENTITY) //anotação para gerar um id autoincrementado
+     private Long id;
+     @Column(unique = true) //anotação para dizer que essa coluna não tenha dados repetidos
+     private String titulo;
      private Integer totalTemporadas;
      private Double avaliacao;
+     @Enumerated(EnumType.STRING) //quando usamos enum temos que especificar se o db vai usar o numero ou a string
      private Categoria genero;
      private String atores;
      private String poster;
      private String sinopse;
+     @Transient //faz o jpa ignorar isso por enquanto enquanto
+     private List<Episodio> episodios = new ArrayList<>(); //como episodios é uma lista, vai precisar de uma chave estrangeria
+
+     public Serie() {}
 
      public Serie(DadosSerie dadosSerie) {
           this.titulo = dadosSerie.titulo();
@@ -20,7 +34,23 @@ public class Serie {
           this.genero = Categoria.fromString(dadosSerie.genero().split(",")[0].trim());
           this.atores = dadosSerie.atores();
           this.poster = dadosSerie.poster();
-          this.sinopse = ConsultaChatGPT.obterTraducao(dadosSerie.sinopse()).trim();
+          this.sinopse = ConsultaMyMemory.obterTraducao(dadosSerie.sinopse()).trim();
+     }
+
+     public List<Episodio> getEpisodios() {
+          return episodios;
+     }
+
+     public void setEpisodios(List<Episodio> episodios) {
+          this.episodios = episodios;
+     }
+
+     public Long getId() {
+          return id;
+     }
+
+     public void setId(Long id) {
+          this.id = id;
      }
 
      public String getTitulo() {

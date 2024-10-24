@@ -1,6 +1,7 @@
 package br.com.alura.screenmatchspring.principal;
 
 import br.com.alura.screenmatchspring.model.*;
+import br.com.alura.screenmatchspring.repository.SerieRepository;
 import br.com.alura.screenmatchspring.service.ConsumoApi;
 import br.com.alura.screenmatchspring.service.ConverteDados;
 
@@ -15,6 +16,12 @@ public class Principal {
     private final String ENDERECO = "https://www.omdbapi.com/?t=";
     private final String API_KEY = "&apikey=6585022c";
     private List<DadosSerie> dadosSeries = new ArrayList<>();
+    private SerieRepository repository;
+
+    //construtor criado para que a classe principal usufrua do crud fornecido pelo serierepository qnd precisar
+    public Principal(SerieRepository repository) {
+        this.repository = repository;
+    }
 
     public void exibeMenu() {
         var opcao = -1;
@@ -52,7 +59,9 @@ public class Principal {
 
     private void buscarSerieWeb() {
         DadosSerie dados = getDadosSerie();
-        dadosSeries.add(dados);
+        Serie serie = new Serie(dados);
+        //dadosSeries.add(dados); não é mais necessário salvar em lista, queremos salvar no DB
+        repository.save(serie); //salva a série buscada no db
         System.out.println(dados);
     }
 
@@ -78,10 +87,7 @@ public class Principal {
 
     private void listarSeriesBuscadas() {
 
-        List<Serie> series = new ArrayList<>();
-        series = dadosSeries.stream()
-                        .map(d -> new Serie(d))
-                                .collect(Collectors.toList());
+        List<Serie> series = repository.findAll(); //como não buscamos mais de lista, puxamos direto do DB
         series.stream()
                 .sorted(Comparator.comparing(Serie::getGenero))
                 .forEach(System.out::println);

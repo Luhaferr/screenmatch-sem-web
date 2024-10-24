@@ -3,9 +3,10 @@ package br.com.alura.screenmatchspring.service;
 import com.theokanning.openai.completion.CompletionRequest;
 import com.theokanning.openai.service.OpenAiService;
 
+//api com problema
 public class ConsultaChatGPT {
     public static String obterTraducao(String texto) {
-        OpenAiService service = new OpenAiService("Sua API-KEY aqui");
+        OpenAiService service = new OpenAiService("");
 
         CompletionRequest requisicao = CompletionRequest.builder()
                 .model("gpt-3.5-turbo-instruct")
