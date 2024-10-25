@@ -17,6 +17,7 @@ public class Principal {
     private final String API_KEY = "&apikey=6585022c";
     private List<DadosSerie> dadosSeries = new ArrayList<>();
     private SerieRepository repository;
+    private List<Serie> series = new ArrayList<>(); //precisamos declarar aqui para que usemos essa lista globalmente na classe
 
     //construtor criado para que a classe principal usufrua do crud fornecido pelo serierepository qnd precisar
     public Principal(SerieRepository repository) {
@@ -62,7 +63,7 @@ public class Principal {
         Serie serie = new Serie(dados);
         //dadosSeries.add(dados); não é mais necessário salvar em lista, queremos salvar no DB
         repository.save(serie); //salva a série buscada no db
-        System.out.println(dados);
+        System.out.println(serie);
     }
 
     private DadosSerie getDadosSerie() {
@@ -74,20 +75,48 @@ public class Principal {
     }
 
     private void buscarEpisodioPorSerie(){
-        DadosSerie dadosSerie = getDadosSerie();
-        List<DadosTemporada> temporadas = new ArrayList<>();
+        listarSeriesBuscadas();
+        System.out.println("Escolha uma série pelo nome");
+        String nomeSerie = scanner.nextLine();
 
-        for (int i = 1; i <= dadosSerie.totalTemporadas(); i++) {
-            var json = consumo.obterDados(ENDERECO + dadosSerie.titulo().replace(" ", "+") + "&season=" + i + API_KEY);
-            DadosTemporada dadosTemporada = conversor.converteDados(json, DadosTemporada.class);
-            temporadas.add(dadosTemporada);
+        //busca a série pelo primeiro nome encontrado, transforma tudo em minúsculo para evitar erros
+        Optional<Serie> serie = series.stream()
+                .filter(s -> s.getTitulo().toLowerCase().contains(nomeSerie.toLowerCase()))
+                .findFirst();
+
+        //verifica se o conteiner acima possui um valor
+        if (serie.isPresent()) {
+
+            //se houver valor, ele atribui a série encontrada à variável
+            Serie serieEncontrada = serie.get();
+            List<DadosTemporada> temporadas = new ArrayList<>(); //lista com numero temporada e sua lista de episodios
+
+            //pra cada série encontrada, preenche os atributos da série
+            for (int i = 1; i <= serieEncontrada.getTotalTemporadas(); i++) {
+                //faz a requisição à API
+                var json = consumo.obterDados(ENDERECO + serieEncontrada.getTitulo().replace(" ", "+") + "&season=" + i + API_KEY);
+                //converte o json vindo da API em classe
+                DadosTemporada dadosTemporada = conversor.converteDados(json, DadosTemporada.class);
+                //popula a lista com os dados agr em objeto
+                temporadas.add(dadosTemporada);
+            }
+            temporadas.forEach(System.out::println);
+
+            //salva as informações de cada episódio da temporada buscada
+            List<Episodio> episodios = temporadas.stream()
+                    .flatMap(d -> d.listaEpisodios().stream()
+                            .map(e -> new Episodio(d.numero(), e)))
+                    .collect(Collectors.toList());
+            serieEncontrada.setEpisodios(episodios);
+            repository.save(serieEncontrada);
+
+        } else {
+            System.out.println("Série não encontrada!");
         }
-        temporadas.forEach(System.out::println);
     }
 
     private void listarSeriesBuscadas() {
-
-        List<Serie> series = repository.findAll(); //como não buscamos mais de lista, puxamos direto do DB
+        series = repository.findAll(); //como não buscamos mais de lista, puxamos direto do DB
         series.stream()
                 .sorted(Comparator.comparing(Serie::getGenero))
                 .forEach(System.out::println);

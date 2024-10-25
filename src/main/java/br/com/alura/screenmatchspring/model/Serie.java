@@ -22,7 +22,11 @@ public class Serie {
      private String atores;
      private String poster;
      private String sinopse;
-     @Transient //faz o jpa ignorar isso por enquanto enquanto
+     /*
+     Série é o lado forte da relação com episódios, cascade faz com que as operações(CRUD) que acontecem na série, também
+     ocorram em episódios, "fetch EAGER" é para que sejam feitas imediatamente
+      */
+     @OneToMany(mappedBy = "serie", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
      private List<Episodio> episodios = new ArrayList<>(); //como episodios é uma lista, vai precisar de uma chave estrangeria
 
      public Serie() {}
@@ -41,7 +45,9 @@ public class Serie {
           return episodios;
      }
 
+     //garante que a lista de episódios da série seja atualizada com a lista recebida como parâmetro, e que cada episódio da lista esteja corretamente associado à série
      public void setEpisodios(List<Episodio> episodios) {
+          episodios.forEach(e -> e.setSerie(this));
           this.episodios = episodios;
      }
 
@@ -117,6 +123,7 @@ public class Serie {
                   ", avaliacao = " + avaliacao +
                   ", atores = " + atores + '\'' +
                   ", poster = " + poster + '\'' +
-                  ", sinopse = " + sinopse + '\'';
+                  ", sinopse = " + sinopse + '\'' +
+                  ", episódios = " + episodios + '\'';
      }
 }
