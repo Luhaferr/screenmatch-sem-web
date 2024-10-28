@@ -31,6 +31,11 @@ public class Principal {
                     1 - Buscar séries
                     2 - Buscar episódios
                     3 - Listar séries buscadas
+                    4 - Buscar séries por título
+                    5 - Buscar séries por ator
+                    6 - Buscar top 5 séries
+                    7 - Buscar séries por categoria
+                    8 - Buscar séries por total de temporada e avaliação
                     
                     0 - Sair
                     """;
@@ -48,6 +53,21 @@ public class Principal {
                     break;
                 case 3:
                     listarSeriesBuscadas();
+                    break;
+                case 4:
+                    buscarSeriePorTitulo();
+                    break;
+                case 5:
+                    buscarSeriePorAtor();
+                    break;
+                case 6:
+                    buscarTop5Series();
+                    break;
+                case 7:
+                    buscarSeriesPorCategoria();
+                    break;
+                case 8:
+                    buscarSeriesPorTemporadaEAvaliacao();
                     break;
                 case 0:
                     System.out.println("Saindo...");
@@ -74,15 +94,57 @@ public class Principal {
         return dados;
     }
 
+    //busca uma série no banco de dados
+    private void buscarSeriePorTitulo() {
+        System.out.println("Escolha uma série pelo nome");
+        String nomeSerie = scanner.nextLine();
+        //derived queries
+        Optional<Serie> serieBuscada = repository.findByTituloContainingIgnoreCase(nomeSerie);
+
+        if (serieBuscada.isPresent()) {
+            System.out.println("Dados da série: " + serieBuscada.get());
+        } else {
+            System.out.println("Série não encontrada!");
+        }
+    }
+
+
+    private void buscarSeriePorAtor() {
+        System.out.println("Escolha uma série por ator");
+        String nomeAtor = scanner.nextLine();
+
+        List<Serie> seriesEncontradas = repository.findByAtoresContainingIgnoreCase(nomeAtor);
+
+        System.out.println("Séries em que " + nomeAtor + " trabalhou:");
+
+        if (seriesEncontradas.isEmpty()) {
+            System.out.println("Nenhuma série encontrada com: " + nomeAtor);
+        } else {
+            seriesEncontradas.forEach(s -> System.out.println(s.getTitulo() + ", avaliação: " + s.getAvaliacao()));
+        }
+    }
+
+    private void buscarSeriesPorCategoria() {
+        System.out.println("Escolha séries por gênero");
+        String nomeGenero = scanner.nextLine();
+        Categoria categoria = Categoria.fromPortugues(nomeGenero);
+        List<Serie> seriesPorCategoria = repository.findByGenero(categoria);
+        System.out.println("Séries da categoria " + nomeGenero);
+        seriesPorCategoria.forEach(System.out::println);
+    }
+
+    private void buscarTop5Series() {
+        List<Serie> seriesTop = repository.findTop5ByOrderByAvaliacaoDesc();
+        seriesTop.forEach(s -> System.out.println(s.getTitulo() + ", avaliação: " + s.getAvaliacao()));
+    }
+
     private void buscarEpisodioPorSerie(){
         listarSeriesBuscadas();
         System.out.println("Escolha uma série pelo nome");
         String nomeSerie = scanner.nextLine();
 
-        //busca a série pelo primeiro nome encontrado, transforma tudo em minúsculo para evitar erros
-        Optional<Serie> serie = series.stream()
-                .filter(s -> s.getTitulo().toLowerCase().contains(nomeSerie.toLowerCase()))
-                .findFirst();
+        //busca a série pelo nome ignorando maiúsculas
+        Optional<Serie> serie = repository.findByTituloContainingIgnoreCase(nomeSerie);
 
         //verifica se o conteiner acima possui um valor
         if (serie.isPresent()) {
@@ -120,6 +182,20 @@ public class Principal {
         series.stream()
                 .sorted(Comparator.comparing(Serie::getGenero))
                 .forEach(System.out::println);
+    }
+
+    public void buscarSeriesPorTemporadaEAvaliacao() {
+        System.out.println("Digite quantas temporadas a série deve ter no máximo");
+        Integer maxTemporadas = scanner.nextInt();
+        scanner.nextLine();
+        System.out.println("Digite a avaliação mínima que a série deve ter");
+        Double minAvaliacao = scanner.nextDouble();
+        scanner.nextLine();
+        List<Serie> serieBuscada = repository.
+                findByTotalTemporadasLessThanEqualAndAvaliacaoGreaterThanEqual(maxTemporadas, minAvaliacao);
+
+        System.out.println("*** Séries filtradas ***");
+        serieBuscada.forEach(s -> System.out.println(s.getTitulo() + " - avaliação: " + s.getAvaliacao()));
     }
 
 }

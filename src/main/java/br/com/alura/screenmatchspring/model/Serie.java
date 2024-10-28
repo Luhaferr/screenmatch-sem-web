@@ -47,6 +47,7 @@ public class Serie {
 
      //garante que a lista de episódios da série seja atualizada com a lista recebida como parâmetro, e que cada episódio da lista esteja corretamente associado à série
      public void setEpisodios(List<Episodio> episodios) {
+          //garante o relacionamento bidirecional e permite (junto do cascade typeAll e FetchEager) que a tabela episódios crie a chave estrangeira referente à série
           episodios.forEach(e -> e.setSerie(this));
           this.episodios = episodios;
      }
