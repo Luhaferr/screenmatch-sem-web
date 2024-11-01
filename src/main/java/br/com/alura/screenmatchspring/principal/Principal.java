@@ -196,7 +196,7 @@ public class Principal {
         List<Episodio> episodiosEncontrados = repository.episodiosPorTrecho(trechoEpisodio);
         episodiosEncontrados.forEach(e -> System.out.printf("Série: %s Temporada %s - Episódio %s - %s\n",
                 e.getSerie().getTitulo(), e.getTemporada(),
-                e.getNumEpisodio(), e.getTitulo()));
+                e.getNumeroEpisodio(), e.getTitulo()));
     }
 
     private void listarSeriesBuscadas() {
@@ -213,7 +213,7 @@ public class Principal {
             List<Episodio> topEpisodios = repository.topEpisodiosPorSerie(serie);
             topEpisodios.forEach(e -> System.out.printf("Série: %s Temporada %s - Episódio %s - %s - Avaliação %s\n",
                     e.getSerie().getTitulo(), e.getTemporada(),
-                    e.getNumEpisodio(), e.getTitulo(), e.getAvaliacao()));
+                    e.getNumeroEpisodio(), e.getTitulo(), e.getAvaliacao()));
         }
     }
 

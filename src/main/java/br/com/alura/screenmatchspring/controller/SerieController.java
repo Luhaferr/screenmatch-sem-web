@@ -1,9 +1,11 @@
 package br.com.alura.screenmatchspring.controller;
 
+import br.com.alura.screenmatchspring.dto.EpisodioDTO;
 import br.com.alura.screenmatchspring.dto.SerieDTO;
 import br.com.alura.screenmatchspring.service.SerieService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -35,5 +37,15 @@ public class SerieController {
     @GetMapping("/lancamentos")
     public List<SerieDTO> obterlancamentos() {
         return service.obterLancamentos();
+    }
+
+    @GetMapping("/{id}") //quando vamos colocar um parâmetro que irá variar na url usamos chaves {} e o nome do param.
+    public SerieDTO obterSeriePorId(@PathVariable Long id) {
+        return service.obterPorId(id);
+    }
+
+    @GetMapping("/{id}/temporadas/todas")
+    public List<EpisodioDTO> obterTodasTemporadas(@PathVariable Long id) {
+        return service.obterTodasTemporadas(id);
     }
 }

@@ -13,7 +13,7 @@ public class Episodio {
     private Long id;
     private Integer temporada;
     private String titulo;
-    private Integer numEpisodio;
+    private Integer numeroEpisodio;
     private Double avaliacao;
     private LocalDate dataLancamento;
     @ManyToOne //relacionamento muitos pra um, os episódios só podem ter uma série
@@ -25,7 +25,7 @@ public class Episodio {
     public Episodio(Integer numeroTemporada, DadosEpisodio dadosEpisodio){
         this.temporada = numeroTemporada;
         this.titulo = dadosEpisodio.titulo();
-        this.numEpisodio = dadosEpisodio.numEpisodio();
+        this.numeroEpisodio = dadosEpisodio.numEpisodio();
 
         //verificações em caso de respostas da API em formatos não aceitos, por exemplo: "N/A"
         try {
@@ -73,12 +73,12 @@ public class Episodio {
         this.titulo = titulo;
     }
 
-    public Integer getNumEpisodio() {
-        return numEpisodio;
+    public Integer getNumeroEpisodio() {
+        return numeroEpisodio;
     }
 
-    public void setNumEpisodio(Integer numEpisodio) {
-        this.numEpisodio = numEpisodio;
+    public void setNumeroEpisodio(Integer numeroEpisodio) {
+        this.numeroEpisodio = numeroEpisodio;
     }
 
     public Double getAvaliacao() {
@@ -101,7 +101,7 @@ public class Episodio {
     public String toString() {
         return "temporada=" + temporada +
                 ", titulo='" + titulo + '\'' +
-                ", numEpisodio=" + numEpisodio +
+                ", numEpisodio=" + numeroEpisodio +
                 ", avaliacao=" + avaliacao +
                 ", dataLancamento=" + dataLancamento;
     }
