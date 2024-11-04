@@ -2,6 +2,8 @@ package br.com.alura.screenmatchspring.service;
 
 import br.com.alura.screenmatchspring.dto.EpisodioDTO;
 import br.com.alura.screenmatchspring.dto.SerieDTO;
+import br.com.alura.screenmatchspring.model.Categoria;
+import br.com.alura.screenmatchspring.model.Episodio;
 import br.com.alura.screenmatchspring.model.Serie;
 import br.com.alura.screenmatchspring.repository.SerieRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +23,12 @@ public class SerieService {
     private List<SerieDTO> converteDados(List<Serie> series) {
         return series.stream()
                 .map(serie -> new SerieDTO(serie.getId(), serie.getTitulo(), serie.getTotalTemporadas(), serie.getAvaliacao(), serie.getGenero(), serie.getAtores(), serie.getPoster(), serie.getSinopse()))
+                .collect(Collectors.toList());
+    }
+
+    private List<EpisodioDTO> converteEpisodios(List<Episodio> episodios) {
+        return episodios.stream()
+                .map(e -> new EpisodioDTO(e.getTemporada(), e.getNumeroEpisodio(), e.getTitulo()))
                 .collect(Collectors.toList());
     }
 
@@ -50,17 +58,22 @@ public class SerieService {
 
         if (serieBuscada.isPresent()) {
             Serie serie = serieBuscada.get();
-            return serie.getEpisodios().stream()
-                    .map(e -> new EpisodioDTO(e.getTemporada(), e.getNumeroEpisodio(), e.getTitulo()))
-                    .collect(Collectors.toList());
+            return converteEpisodios(serie.getEpisodios());
         }
         return null;
     }
 
     public List<EpisodioDTO> obterTemporadasPorNumero(Long id, Long numero) {
-        return repository.obterEpisodiosPorTemporada(id, numero)
-                .stream()
-                .map(e -> new EpisodioDTO(e.getTemporada(), e.getNumeroEpisodio(), e.getTitulo()))
-                .collect(Collectors.toList());
+        return converteEpisodios(repository.obterEpisodiosPorTemporada(id, numero));
     }
+
+    public List<SerieDTO> obterSeriesPorCategoria(String categoria) {
+        Categoria categoriaPt = Categoria.fromPortugues(categoria);
+        return converteDados(repository.findByGenero(categoriaPt));
+    }
+
+    public List<EpisodioDTO> obterTop5Episodios(Long id) {
+        return converteEpisodios(repository.topEpisodiosPorSerie(id));
+    }
+
 }

@@ -19,6 +19,8 @@ public class SerieController {
     private SerieService service;
 
     /*
+    CADA UM DOS MÉTODOS ABAIXO SÃO ENDPOINTS NA API
+
     1 - mapeia requisições HTTP do tipo GET pro métod0 abaixo. Nesse caso, o caminho definido é /series,
     então qualquer requisição GET para a URL /series será direcionada a esse métod0.
     2 - Quando o Spring Boot detecta uma requisição GET para o caminho /series, ele chama o métod0 obterSeries.
@@ -52,5 +54,15 @@ public class SerieController {
     @GetMapping("/{id}/temporadas/{numero}")
     public List<EpisodioDTO> obterTemporadasPorNumero(@PathVariable Long id, @PathVariable Long numero) {
         return service.obterTemporadasPorNumero(id, numero);
+    }
+
+    @GetMapping("categoria/{categoria}")
+    public List<SerieDTO> obterSeriesPorCategoria(@PathVariable String categoria) {
+        return service.obterSeriesPorCategoria(categoria);
+    }
+
+    @GetMapping("/{id}/temporadas/top")
+    public List<EpisodioDTO> obterTop5Episodios(@PathVariable Long id) {
+        return service.obterTop5Episodios(id);
     }
 }
